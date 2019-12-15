@@ -14,7 +14,7 @@ import logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                      level=logging.INFO)
 
-
+"""
 def send_typing_action(func):
 
 
@@ -25,12 +25,14 @@ def send_typing_action(func):
 
     return command_func
 
+"""
 
 def download_image(url,name):
     fullname = str(name)+".jpeg"
     urllib.request.urlretrieve(url,fullname)
 
-@send_typing_action
+
+# @send_typing_action
 def some_func(bot, update):
     pass
     if not update.effective_message.photo:
@@ -43,7 +45,7 @@ def some_func(bot, update):
         update.effective_message.reply_text(text = i.beautify(i.integrator('wassup.jpeg')))
         
 def main():
-    updater = Updater(token='TOKEN', use_context=True)
+    updater = Updater('742953970:AAHf6qRFrvdrYtF8BDqUxK3KlRd2hpDcsZM')
     dp = updater.dispatcher
     dp.add_handler(MessageHandler(Filters.all, some_func))
     updater.start_polling()
