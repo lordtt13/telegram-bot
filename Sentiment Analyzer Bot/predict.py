@@ -17,9 +17,11 @@ def maxlen(lines):
     return max([len(line) for line in lines])
 
 def load_lines(filename):
-    with open(filename,'rb') as f:
-        lines = [x.decode('utf8').strip().lower() for x in f.readlines()]
-    return lines
+    TRAIN_DATA_FILE='Toxic Dataset/train.csv'
+
+    train = pd.read_csv(TRAIN_DATA_FILE)
+    list_sentences_train = train["comment_text"].fillna("_na_").values
+    return list(list_sentences_train)
 
 def preprocessing(list_sentences,sentence,maxlen,max_features = 20000):
     tokenizer = Tokenizer(num_words=max_features)
