@@ -11,18 +11,30 @@ from keras.preprocessing.sequence import pad_sequences
 model,_ = l.init()
 
 def make_sentence(sentence):
-    return [[sentence]]
+    return [sentence]
 
-def preprocessing(list_sentences,max_features = 20000, maxlen = 50):
+def maxlen(lines):
+    return max([len(line) for line in lines])
+
+def load_lines(filename):
+    with open(filename,'rb') as f:
+        lines = [x.decode('utf8').strip().lower() for x in f.readlines()]
+    return lines
+
+def preprocessing(list_sentences,sentence,maxlen,max_features = 20000):
     tokenizer = Tokenizer(num_words=max_features)
     tokenizer.fit_on_texts(list(list_sentences))
-    list_tokenized_train = tokenizer.texts_to_sequences(list_sentences)
+    list_tokenized_train = tokenizer.texts_to_sequences(sentence)
     
     X_t = pad_sequences(list_tokenized_train, maxlen=maxlen)
     return X_t
 
+def make_training_data(x, filename):
+    data = load_lines(filename)
+    return preprocessing(data,make_sentence(x),maxlen(data))
+
 def prediction(x):
-    x = preprocessing(make_sentence(x))
+    x = make_training_data(x, 'mal.txt')
     list_classes = ["Toxic", "Severely Toxic", "Obscene", "Threat", "Insult", "Identity Hate"]      
     x = dict(zip(list_classes,100*model.predict([x,]).flatten()))
     return x
