@@ -9,9 +9,8 @@ import pandas as pd
 
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-from tensorflow.keras.layers import Dense, Input, Embedding, SpatialDropout1D, Bidirectional
+from tensorflow.keras.layers import Dense, Input, Embedding, SpatialDropout1D, Bidirectional, Dropout
 from tensorflow.keras.layers import Conv1D, GRU, GlobalAveragePooling1D, GlobalMaxPooling1D, concatenate
-from tensorflow.keras.callbacks import ReduceLROnPlateau, ModelCheckpoint, EarlyStopping
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 
@@ -58,7 +57,9 @@ def make_model(embed_size, embedding_matrix, max_features = 20000, maxlen = 50):
     inp = Input(shape=(maxlen,))
     x = Embedding(max_features, embed_size, weights=[embedding_matrix])(inp)
     x = SpatialDropout1D(0.2)(x)
-    x = Bidirectional(GRU(128, return_sequences=True,dropout=0.1,recurrent_dropout=0.1))(x)
+    x = Bidirectional(GRU(128, return_sequences = True, activation = "tanh", recurrent_activation = "sigmoid", use_bias = "True", reset_after = "True", unroll = "False"))(x)
+    # For CuDNN implementation with tf2
+    x = Dropout(0.2)(x)
     x = Conv1D(64, kernel_size = 3, padding = "valid", kernel_initializer = "glorot_uniform")(x)
     avg_pool = GlobalAveragePooling1D()(x)
     max_pool = GlobalMaxPooling1D()(x)
@@ -69,19 +70,6 @@ def make_model(embed_size, embedding_matrix, max_features = 20000, maxlen = 50):
     model.compile(loss='binary_crossentropy',optimizer=Adam(lr=1e-4),metrics=['accuracy'])
  
     return model
-
-def train(model,X_t,y,MODEL_WEIGHTS_FILE):
-    learning_rate_reduction = ReduceLROnPlateau(monitor='val_acc', 
-                                            patience=2, 
-                                            verbose=1, 
-                                            factor=0.5, 
-                                            min_lr=0.00000001)
-
-    callbacks = [learning_rate_reduction,EarlyStopping('val_loss', patience=3), ModelCheckpoint(MODEL_WEIGHTS_FILE, save_best_only=True)]
-    
-    model.fit(X_t, y, batch_size = 128, epochs = 10, validation_split=0.25, callbacks=callbacks)
-    
-    model.save("toxic_model.h5")
     
     
 if __name__ == "__main__":
@@ -94,4 +82,6 @@ if __name__ == "__main__":
     
     model = make_model(embed_size, embedding_matrix)
     
-    train(model, X_t, y, "weights_improvment.hd5")
+    model.fit(X_t, y, batch_size = 128, epochs = 10, validation_split = 0.25)
+    
+    model.save("toxic_model.h5")
