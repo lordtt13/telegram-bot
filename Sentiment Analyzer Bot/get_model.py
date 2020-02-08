@@ -5,13 +5,16 @@ Created on Thu Sep 12 23:16:47 2019
 @author: tanma
 """
 import numpy as np
-from keras.preprocessing.text import Tokenizer
-from keras.preprocessing.sequence import pad_sequences
-from keras.layers import Dense, Input, Embedding, SpatialDropout1D, Bidirectional
-from keras.layers import Conv1D, GRU, GlobalAveragePooling1D, GlobalMaxPooling1D, concatenate
-from keras.callbacks import ReduceLROnPlateau, ModelCheckpoint, EarlyStopping
-from keras.models import Model
-from keras.optimizers import Adam
+import pandas as pd
+
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.layers import Dense, Input, Embedding, SpatialDropout1D, Bidirectional
+from tensorflow.keras.layers import Conv1D, GRU, GlobalAveragePooling1D, GlobalMaxPooling1D, concatenate
+from tensorflow.keras.callbacks import ReduceLROnPlateau, ModelCheckpoint, EarlyStopping
+from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import Adam
+
 
 def get_data(train, test, max_features = 20000, maxlen = 50):
     list_sentences_train = train["comment_text"].fillna("_na_").values
@@ -76,6 +79,19 @@ def train(model,X_t,y,MODEL_WEIGHTS_FILE):
 
     callbacks = [learning_rate_reduction,EarlyStopping('val_loss', patience=3), ModelCheckpoint(MODEL_WEIGHTS_FILE, save_best_only=True)]
     
-    model.fit(X_t, y, batch_size=32, epochs=20, validation_split=0.1, callbacks=callbacks)
+    model.fit(X_t, y, batch_size = 128, epochs = 10, validation_split=0.25, callbacks=callbacks)
     
     model.save("toxic_model.h5")
+    
+    
+if __name__ == "__main__":
+    train_ =  pd.read_csv("E:\\Misc\\Toxic Model\\train.csv")
+    test =  pd.read_csv("E:\\Misc\\Toxic Model\\test.csv")
+    X_t, X_te, y, tokenizer = get_data(train_, test)
+    
+    embed_size = 50
+    embedding_matrix = get_embedding_matrix("E:\\Misc\\Glove Data\\glove.6B.50d.txt", embed_size, tokenizer) 
+    
+    model = make_model(embed_size, embedding_matrix)
+    
+    train(model, X_t, y, "weights_improvment.hd5")
