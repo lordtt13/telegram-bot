@@ -4,15 +4,12 @@ Created on Sun Feb 23 23:02:17 2020
 
 @author: Tanmay Thakur
 """ 
-import sys
 import logging
 
 from predict import prediction
-from functools import wraps
+from telegram import ChatAction
 from telegram.ext import Updater, MessageHandler, Filters
 
-
-sys.setrecursionlimit(1000000)
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                      level=logging.INFO)
@@ -21,7 +18,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 def some_func(bot, update):
     pass
     if not update.effective_message.text:
-        update.effective_message.reply_text(text = "This bot is only capable of Natural Language Processing Tasks!")
+        update.effective_message.reply_text(text = "Cannot handle given format, getting aware now")
     else:
         msg = update.effective_message.text
         update.effective_message.reply_text(text = prediction(msg))
