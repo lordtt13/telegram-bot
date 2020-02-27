@@ -1,8 +1,14 @@
+*__pycache__
+
+# Models skipped
 *.hd5
 *.model
-*.csv
 *.hdf5
 *.h5
+
+# Datasets skipped
+*.csv
+
+# Test Images Skipped
 *.jpg
 *.jpeg
-*__pycache__
