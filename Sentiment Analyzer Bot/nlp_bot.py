@@ -7,7 +7,6 @@ Created on Sun Feb 23 23:02:17 2020
 import logging
 
 from predict import prediction
-from telegram import ChatAction
 from telegram.ext import Updater, MessageHandler, Filters
 
 
