@@ -5,7 +5,6 @@ Created on Sat Sep  7 13:15:02 2019
 @author: tanma
 """
 import cv2
-import cvlib as cv
 import json
 import numpy as np
 import init as j
